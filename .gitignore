@@ -1,0 +1,12 @@
+# local Wi-Fi credentials
+adblocker/wifi_config.h
+
+# build / flash artifacts
+__pycache__/
+*.bin.bak
+pt.bin
+
+# scratch files
+ide_shot.png
+uia_tree.txt
+uia_dump.py

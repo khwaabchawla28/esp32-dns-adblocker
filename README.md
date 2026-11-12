@@ -29,6 +29,19 @@ Tested on a real network (Android hotspot): `doubleclick.net`,
 
 ## Setup
 
+Prerequisites (once):
+
+- An ESP32-S3 dev board + USB-serial (FTDI) adapter
+- [arduino-cli](https://arduino.github.io/arduino-cli/) or the Arduino IDE,
+  plus the ESP32 core:
+
+  ```
+  arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+  arduino-cli core install esp32:esp32
+  ```
+
+Then:
+
 1. Copy `adblocker/wifi_config.h.example` to `adblocker/wifi_config.h` and fill
    in your Wi-Fi credentials (the file is gitignored — never commit it).
 2. Build the blocklist (writes `adblocker/data/blocklist.bin`):
@@ -37,8 +50,19 @@ Tested on a real network (Android hotspot): `doubleclick.net`,
    python tools/make_blocklist.py
    ```
 
-3. Flash the LittleFS data partition once (Arduino IDE "Upload filesystems", or
-   `arduino-cli` with the `--preprocess`/plugin route), then flash the sketch.
+   (The repo already ships a prebuilt `blocklist.bin`, so this step is optional
+   unless you want a fresher list.)
+3. Upload the `adblocker/data/` folder to the LittleFS partition **once**
+   (it survives later sketch flashes). Two ways:
+   - Arduino IDE: "ESP32 Sketch Data Upload" (via the ESP32FS / UploadFS tool)
+   - CLI equivalent — build a LittleFS image and flash it at the partition
+     offset `0x290000` (the default 4 MB scheme's spiffs slot):
+
+     ```
+     mklittlefs -c adblocker/data -b 4096 -s 1441792 littlefs.bin
+     esptool.py --chip esp32s3 --port COMxx write_flash 0x290000 littlefs.bin
+     ```
+4. Flash the sketch (next section).
 
 ## Build + flash (arduino-cli, no IDE needed)
 
